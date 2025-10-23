@@ -3,27 +3,65 @@ package utils
 import (
 	"encoding/csv"
 	"io"
+	"log"
 	"os"
 	"safelyyou-monitoring-fleet/models"
+	"sync"
 )
 
-// DeviceList keeps all registered devices in memory
-var DeviceList = make(map[string]*models.Device)
+var (
+	// DeviceList keeps all registered devices in memory
+	DeviceList = make(map[string]*models.Device)
 
+	// Store error while loading the devices
+	DeviceLoadErr error
+
+	// DeviceListMu to protect DeviceList for concurrent reads and writes
+	DeviceListMu sync.RWMutex
+)
+
+// LoadDevices - reads devices from the provided CSV file,
+// creates a new device list, and updates the global DeviceList
 func LoadDevices(filename string) {
-	// TODO: Add error handling if file not found
-	file, _ := os.Open(filename)
+	// Create a new local map
+	m := make(map[string]*models.Device)
+	file, err := os.Open(filename)
+
+	// Error handling if file not found, and update the global DeviceLoadErr;
+	// and clear DeviceList on error to prevent serving stale or partial data
+	if err != nil {
+		log.Printf("Error %s", err.Error())
+		DeviceLoadErr = err
+		DeviceList = nil
+		return
+	}
+	defer file.Close()
+
 	reader := csv.NewReader(file)
 
-	// Skip header in device.csv
+	// Skip header in devices.csv
 	reader.Read()
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
-		// Add a new Device struct reference to DeviceList
+		if err != nil {
+			DeviceLoadErr = err
+			// Clear DeviceList on error to prevent serving stale or partial data
+			DeviceList = nil
+			break
+		}
+
+		// Add a new Device struct reference to local map
 		// The key is the device ID, and the value is a pointer to the Device struct
-		DeviceList[record[0]] = &models.Device{}
+		m[record[0]] = &models.Device{}
 	}
+
+	// Lock the DeviceList when updating the value with local map
+	DeviceListMu.Lock()
+	DeviceList = m
+	DeviceLoadErr = nil
+	// Once the DeviceList is updated, remove the lock
+	DeviceListMu.Unlock()
 }

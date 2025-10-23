@@ -13,14 +13,14 @@ type HeartbeatRequest struct {
 	SentAt time.Time `json:"sent_at"`
 }
 
-// StatsRequest represents the payload sent to /devices/{device_id}/stats
-type StatsRequest struct {
+// UploadStatsRequest represents the payload sent to /devices/{device_id}/stats
+type UploadStatsRequest struct {
 	SentAt     time.Time `json:"sent_at"`
 	UploadTime int64     `json:"upload_time"`
 }
 
-// StatsResponse represents the API response for GET /devices/{device_id}/stats
-type StatsResponse struct {
+// GetDeviceStatsResponse represents the API response for GET /devices/{device_id}/stats
+type GetDeviceStatsResponse struct {
 	Uptime        float64 `json:"uptime"`
 	AvgUploadTime string  `json:"avg_upload_time"`
 }
