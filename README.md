@@ -1,6 +1,6 @@
 # SafelyYou Monitoring API
 
-A lightweight Go REST API service for monitoring and tracking device's heartbeats and upload statistics. The service maintains devices uptime metrics and calculates average upload durations for registered devices.
+A lightweight Go REST API service for monitoring and tracking device's heartbeats and upload statistics. The service calculates device uptime metrics and average upload durations for registered devices.
 
 ## Prerequisites
 
