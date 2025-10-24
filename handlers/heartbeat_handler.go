@@ -16,6 +16,7 @@ func RegisterHeartbeat(w http.ResponseWriter, r *http.Request) {
 	// it will return a HTTP 500 because no device records exist
 	if utils.DeviceLoadErr != nil {
 		http.Error(w, "Error response", http.StatusInternalServerError)
+		return
 	}
 
 	// Extract device_id from the URL path

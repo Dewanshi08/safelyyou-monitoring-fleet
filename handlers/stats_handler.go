@@ -17,6 +17,7 @@ func RegisterStats(w http.ResponseWriter, r *http.Request) {
 	// it will return a HTTP 500 because no device records exist
 	if utils.DeviceLoadErr != nil {
 		http.Error(w, "Error response", http.StatusInternalServerError)
+		return
 	}
 
 	// Extract device_id from the URL path
@@ -59,6 +60,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	// it will return a HTTP 500 because no device records exist
 	if utils.DeviceLoadErr != nil {
 		http.Error(w, "Error response", http.StatusInternalServerError)
+		return
 	}
 
 	// Extract device_id from the URL path
@@ -99,16 +101,18 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		uptime = (float64(len(heartbeats)) / duration) * 100
 	}
 
-	// Calculating average upload time
-	var sum int64
-	for _, t := range device.UploadTimes {
-		sum += t
-	}
 	// If number of upload time is 0, i.e., return expection as division by zero is not possible
 	if len(device.UploadTimes) == 0 {
 		http.Error(w, "No upload times found", http.StatusBadRequest)
 		return
 	}
+
+	// Calculating average upload time
+	var sum int64
+	for _, t := range device.UploadTimes {
+		sum += t
+	}
+
 	avg := sum / int64(len(device.UploadTimes))
 
 	// Creating the response for uptime with avgUploadTime in duration format
@@ -134,6 +138,9 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 //
 // *NOTE: For real-time device status, lastHeartBeat should be compared with
 // current time (time.Now().UTC().Sub(lastHeartbeat))
+//
+// Here, using comparison between last two heartbeats timestamps, because
+// the simulator registers heartbeats in old time
 func isDeviceOffline(heartbeats []time.Time) bool {
 	// Get the last two heartbeat timestamps
 	lastHeartbeat := heartbeats[len(heartbeats)-1]

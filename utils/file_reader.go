@@ -31,8 +31,7 @@ func LoadDevices(filename string) {
 	// and clear DeviceList on error to prevent serving stale or partial data
 	if err != nil {
 		log.Printf("Error %s", err.Error())
-		DeviceLoadErr = err
-		DeviceList = nil
+		handleLocks(nil, err)
 		return
 	}
 	defer file.Close()
@@ -47,10 +46,9 @@ func LoadDevices(filename string) {
 			break
 		}
 		if err != nil {
-			DeviceLoadErr = err
 			// Clear DeviceList on error to prevent serving stale or partial data
-			DeviceList = nil
-			break
+			handleLocks(nil, err)
+			return
 		}
 
 		// Add a new Device struct reference to local map
@@ -58,10 +56,14 @@ func LoadDevices(filename string) {
 		m[record[0]] = &models.Device{}
 	}
 
+	handleLocks(m, nil)
+}
+
+func handleLocks(m map[string]*models.Device, err error) {
 	// Lock the DeviceList when updating the value with local map
 	DeviceListMu.Lock()
 	DeviceList = m
-	DeviceLoadErr = nil
+	DeviceLoadErr = err
 	// Once the DeviceList is updated, remove the lock
 	DeviceListMu.Unlock()
 }
