@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"safelyyou-monitoring-fleet/logger"
 	"safelyyou-monitoring-fleet/router"
 	"safelyyou-monitoring-fleet/utils"
 	"testing"
@@ -16,6 +17,7 @@ var r = setupRouter()
 
 // setupRouter - initializes a new mux router
 func setupRouter() *mux.Router {
+	logger.Init("dev")
 	// Create a new router and register API endpoints
 	r := mux.NewRouter()
 	router.RegisterRoutes(r)

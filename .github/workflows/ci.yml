@@ -1,0 +1,45 @@
+name: CI workflow
+
+on:
+  push:
+    branches: [ feature/development, main ]
+
+jobs:
+  # Development
+  ci:
+    if: github.ref == 'refs/heads/feature/development'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+
+      - name: Install dependencies
+        run: go mod tidy
+      
+      - name: Run tests
+        run: go test -v -cover ./...
+
+      - name: Build Docker image
+        run: |
+          docker build -t monitoringapp:latest .
+          docker images | grep monitoringapp
+
+  # Production
+  build-prod:
+    if: github.ref  == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t monitoringapp:latest .
+          docker images | grep monitoringapp
