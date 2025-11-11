@@ -6,7 +6,7 @@ on:
 
 jobs:
   # Development
-  ci:
+  dev:
     if: github.ref == 'refs/heads/feature/development'
     runs-on: ubuntu-latest
 
@@ -31,7 +31,7 @@ jobs:
           docker images | grep monitoringapp
 
   # Production
-  build-prod:
+  prod:
     if: github.ref  == 'refs/heads/main'
     runs-on: ubuntu-latest
 
