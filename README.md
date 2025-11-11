@@ -6,6 +6,7 @@ A lightweight Go REST API service for monitoring and tracking device's heartbeat
 
 - Go 1.24.3 or higher
 - Gorilla Mux router (`github.com/gorilla/mux`)
+- Uber Zap (`go.uber.org/zap`)
 
 ## Installation
 
@@ -19,6 +20,7 @@ cd safelyyou-monitoring-fleet
 ```bash
 go mod init safelyyou-monitoring-fleet
 go get github.com/gorilla/mux
+go get go.uber.org/zap
 ```
 
 ## Running the Application
